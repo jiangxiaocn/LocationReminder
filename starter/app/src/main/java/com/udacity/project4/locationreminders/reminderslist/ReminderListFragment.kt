@@ -80,7 +80,7 @@ class ReminderListFragment : BaseFragment() {
                 AuthUI.getInstance().signOut(requireContext())
             }
         }
-        return NavigationUI.onNavDestinationSelected(item, requireView().findNavController()) ||super.onOptionsItemSelected(item)
+        return super.onOptionsItemSelected(item)
 
     }
 
