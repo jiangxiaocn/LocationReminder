@@ -37,5 +37,9 @@
 
 
     </fragment>
+    <activity
+        android:id="@+id/logout"
+        android:name="com.udacity.project4.authentication.AuthenticationActivity"
+        android:label="AuthenticationActivity" />
 
 </navigation>
