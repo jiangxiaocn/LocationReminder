@@ -41,6 +41,7 @@ class SaveReminderFragment : BaseFragment() {
     private lateinit var viewModel: SaveReminderViewModel
     private lateinit var reminderDataItem: ReminderDataItem
     private lateinit var geofencingClient: GeofencingClient
+    private lateinit var geofencingRequest :GeofencingRequest
 
 
     override fun onCreateView(
@@ -284,32 +285,10 @@ class SaveReminderFragment : BaseFragment() {
             }
         }
     }
-    /**
-     * Removes geofences. This method should be called after the user has granted the location
-     * permission.
-     */
-    private fun removeGeofences() {
-        if (!foregroundAndBackgroundLocationPermissionApproved()) {
-            return
-        }
-        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
-            addOnSuccessListener {
-                // Geofences removed
-                Log.d(TAG, getString(R.string.geofences_removed))
-                Toast.makeText(requireContext(), R.string.geofences_removed, Toast.LENGTH_SHORT)
-                    .show()
-            }
-            addOnFailureListener {
-                // Failed to remove geofences
-                Log.d(TAG, getString(R.string.geofences_not_removed))
-            }
-        }
-    }
     override fun onDestroy() {
         super.onDestroy()
         //make sure to clear the view model after destroy, as it's a single view model.
         _viewModel.onClear()
-        removeGeofences()
     }
 }
 private const val REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE = 33
