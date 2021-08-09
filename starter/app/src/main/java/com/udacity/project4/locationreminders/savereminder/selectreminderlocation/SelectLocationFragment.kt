@@ -10,10 +10,12 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Transformations.map
+import androidx.navigation.findNavController
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
@@ -41,6 +43,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
     private val REQUEST_LOCATION_PERMISSION = 1
     private val TAG = SelectLocationFragment::class.java.simpleName
+    private lateinit var pointOfInterest: PointOfInterest
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -89,6 +92,17 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         //        TODO: When the user confirms on the selected location,
         //         send back the selected location details to the view model
         //         and navigate back to the previous fragment to save the reminder and add the geofence
+        binding.saveButton.setOnClickListener {
+            if (this::pointOfInterest.isInitialized){
+                _viewModel.latitude.value=pointOfInterest.latLng.latitude
+                _viewModel.longitude.value = pointOfInterest.latLng.longitude
+                _viewModel.reminderSelectedLocationStr.value = pointOfInterest.name
+                _viewModel.selectedPOI.value = pointOfInterest
+            view!!.findNavController().navigate(SelectLocationFragmentDirections.actionSelectLocationFragmentToSaveReminderFragment())
+            } else{
+                Toast.makeText(context, "Please select a location", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
 
@@ -99,15 +113,19 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         // TODO: Change the map type based on the user's selection.
         R.id.normal_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_NORMAL
             true
         }
         R.id.hybrid_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_HYBRID
             true
         }
         R.id.satellite_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_SATELLITE
             true
         }
         R.id.terrain_map -> {
+            map.mapType = GoogleMap.MAP_TYPE_TERRAIN
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -135,6 +153,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 MarkerOptions().position(poi.latLng)
                     .title(poi.name)
             )
+            pointOfInterest = poi
             poiMarker.showInfoWindow()
         }
     }
