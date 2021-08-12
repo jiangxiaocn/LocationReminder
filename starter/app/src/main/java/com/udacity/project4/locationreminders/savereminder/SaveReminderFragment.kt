@@ -17,7 +17,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.startIntentSenderForResult
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import com.google.android.gms.common.api.ResolvableApiException
@@ -68,6 +70,7 @@ class SaveReminderFragment : BaseFragment() {
         return binding.root
     }
 
+    @SuppressLint("MissingPermission")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = this
@@ -89,11 +92,18 @@ class SaveReminderFragment : BaseFragment() {
 //             2) save the reminder to the local db
             reminderDataItem = ReminderDataItem(title, description, location, latitude, longitude)
 
-            if (_viewModel.validateAndSaveReminder(reminderDataItem)!=null) {
                 checkPermissionsAndStartGeofencing()
-            }
         }
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
+            // We don't rely on the result code, but just check the location setting again
+            checkDeviceLocationSettingsAndStartGeofence(false)
+        }
+    }
+
     private fun checkPermissionsAndStartGeofencing() {
         if (foregroundAndBackgroundLocationPermissionApproved()) {
             checkDeviceLocationSettingsAndStartGeofence()
@@ -206,8 +216,7 @@ class SaveReminderFragment : BaseFragment() {
                 try {
                     // Show the dialog by calling startResolutionForResult(),
                     // and check the result in onActivityResult().
-                    exception.startResolutionForResult(requireActivity(),
-                        REQUEST_TURN_DEVICE_LOCATION_ON)
+                        startIntentSenderForResult(exception.resolution.intentSender, REQUEST_TURN_DEVICE_LOCATION_ON,null,0,0,0,null)
                 } catch (sendEx: IntentSender.SendIntentException) {
                     Log.d(TAG, "Error geting location settings resolution: " + sendEx.message)
                 }
@@ -252,7 +261,7 @@ class SaveReminderFragment : BaseFragment() {
                 )
                 // Set the expiration duration of the geofence. This geofence gets
                 // automatically removed after this period of time.
-                .setExpirationDuration(GeofencingConstants.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 // Set the transition types of interest. Alerts are only generated for these
                 // transition. We track entry and exit transitions in this sample.
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
@@ -269,10 +278,10 @@ class SaveReminderFragment : BaseFragment() {
                 .addGeofence(geofence)
                 .build()
 
+
             // First, remove any existing geofences that use our pending intent
-            geofencingClient.removeGeofences(geofencePendingIntent)?.run {
                 // Regardless of success/failure of the removal, add the new geofence
-                addOnCompleteListener {
+
                     // Add the new geofence request with the new geofence
                     geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
                         addOnSuccessListener {
@@ -282,9 +291,9 @@ class SaveReminderFragment : BaseFragment() {
                                 Toast.LENGTH_SHORT
                             )
                                 .show()
-                            Log.e("Add Geofence", geofence.requestId)
+                            Log.d(TAG, "Location added!!!")
                             // Tell the viewmodel that we've reached the end of the game and
-
+                            _viewModel.validateAndSaveReminder(reminderDataItem)
                         }
                         addOnFailureListener {
                             // Failed to add geofences.
@@ -297,8 +306,6 @@ class SaveReminderFragment : BaseFragment() {
                             }
                         }
                     }
-                }
-            }
         }
     }
     override fun onDestroy() {

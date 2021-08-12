@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -83,7 +84,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         map.addMarker(MarkerOptions().position(homeLatLng).title("Marker in Sydney"))
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng,zoomLevel))
         setMapLongClick(map)
-        setPoiClick(map)
+        setLocationClick(map)
         enableMyLocation()
         setMapStyle(map)
     }
@@ -147,7 +148,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
-    private fun setPoiClick(map:GoogleMap){
+    private fun setLocationClick(map:GoogleMap){
         map.setOnPoiClickListener { poi ->
             val poiMarker = map.addMarker(
                 MarkerOptions().position(poi.latLng)
@@ -155,6 +156,15 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             )
             pointOfInterest = poi
             poiMarker.showInfoWindow()
+
+            map.addCircle(
+                    CircleOptions()
+                            .center(poi.latLng)
+                            .radius(200.0)
+                            .strokeColor(Color.argb(255,255,0,0))
+                            .fillColor(Color.argb(64,0,0,255)).strokeWidth(4F)
+
+            )
         }
     }
     private fun setMapStyle(map: GoogleMap) {
