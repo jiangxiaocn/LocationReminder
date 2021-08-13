@@ -96,4 +96,5 @@ class AuthenticationActivity : AppCompatActivity() {
             }
         }
     }
+
 }

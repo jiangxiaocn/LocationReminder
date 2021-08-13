@@ -13,6 +13,7 @@ import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Transformations.map
@@ -45,6 +46,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private val REQUEST_LOCATION_PERMISSION = 1
     private val TAG = SelectLocationFragment::class.java.simpleName
     private lateinit var pointOfInterest: PointOfInterest
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -80,8 +82,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         val longitude = 18.088052
         val homeLatLng = LatLng(latitude,longitude)
         val zoomLevel = 18f
+        map.uiSettings.isZoomControlsEnabled = true
 
-        map.addMarker(MarkerOptions().position(homeLatLng).title("Marker in Sydney"))
+        map.addMarker(MarkerOptions().position(homeLatLng).title("Marker in Sweden"))
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng,zoomLevel))
         setMapLongClick(map)
         setLocationClick(map)
@@ -191,7 +194,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
     private fun enableMyLocation() {
         if (isPermissionGranted()) {
-            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
                 //    ActivityCompat#requestPermissions
                 // here to request the missing permissions, and then overriding
@@ -199,16 +201,16 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 //                                          int[] grantResults)
                 // to handle the case where the user grants the permission. See the documentation
                 // for ActivityCompat#requestPermissions for more details.
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                map.setMyLocationEnabled(true)
                 return
             }
-            map.setMyLocationEnabled(true)
+
         }
         else {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),
-                REQUEST_LOCATION_PERMISSION
-            )
+           requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_LOCATION_PERMISSION)
         }
     }
     override fun onRequestPermissionsResult(
@@ -221,6 +223,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         if (requestCode == REQUEST_LOCATION_PERMISSION) {
             if (grantResults.size > 0 && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 enableMyLocation()
+            }else{
+                Toast.makeText(context, "Location permission was not granted. Please add permission in setitngs", Toast.LENGTH_LONG).show()
             }
         }
     }

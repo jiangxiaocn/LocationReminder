@@ -1,6 +1,7 @@
 package com.udacity.project4.locationreminders
 
 import android.Manifest
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.MenuItem
@@ -20,6 +21,7 @@ class RemindersActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminders)
 
+
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -29,6 +31,7 @@ class RemindersActivity : AppCompatActivity() {
                 return true
             }
         }
+        finish()
         return super.onOptionsItemSelected(item)
     }
 }
