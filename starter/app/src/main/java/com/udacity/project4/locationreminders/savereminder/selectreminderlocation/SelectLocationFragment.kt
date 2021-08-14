@@ -35,6 +35,7 @@ import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 import com.google.android.gms.maps.model.*
+import kotlinx.android.synthetic.main.it_reminder.*
 import java.util.*
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
@@ -46,6 +47,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private val REQUEST_LOCATION_PERMISSION = 1
     private val TAG = SelectLocationFragment::class.java.simpleName
     private lateinit var pointOfInterest: PointOfInterest
+    private lateinit var randomPosition : LatLng
 
 
     override fun onCreateView(
@@ -97,14 +99,21 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         //         send back the selected location details to the view model
         //         and navigate back to the previous fragment to save the reminder and add the geofence
         binding.saveButton.setOnClickListener {
-            if (this::pointOfInterest.isInitialized){
-                _viewModel.latitude.value=pointOfInterest.latLng.latitude
+            if (this::pointOfInterest.isInitialized) {
+                _viewModel.latitude.value = pointOfInterest.latLng.latitude
                 _viewModel.longitude.value = pointOfInterest.latLng.longitude
                 _viewModel.reminderSelectedLocationStr.value = pointOfInterest.name
                 _viewModel.selectedPOI.value = pointOfInterest
-            view!!.findNavController().navigate(SelectLocationFragmentDirections.actionSelectLocationFragmentToSaveReminderFragment())
-            } else{
-                Toast.makeText(context, "Please select a location", Toast.LENGTH_LONG).show()
+                view!!.findNavController().navigate(SelectLocationFragmentDirections.actionSelectLocationFragmentToSaveReminderFragment())
+            } else {
+                if (this::randomPosition.isInitialized) {
+                    _viewModel.latitude.value = randomPosition.latitude
+                    _viewModel.longitude.value = randomPosition.longitude
+                    _viewModel.reminderSelectedLocationStr.value = getString(R.string.dropped_pin)
+                    view!!.findNavController().navigate(SelectLocationFragmentDirections.actionSelectLocationFragmentToSaveReminderFragment())
+                } else {
+                    Toast.makeText(context, "Please select a location", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
@@ -148,6 +157,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 .snippet(snippet)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
             )
+            randomPosition=latLng
         }
     }
 

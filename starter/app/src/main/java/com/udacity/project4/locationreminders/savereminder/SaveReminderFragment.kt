@@ -154,11 +154,7 @@ class SaveReminderFragment : BaseFragment() {
         }
 
         Log.d(TAG, "Request foreground only location permission")
-        ActivityCompat.requestPermissions(
-            requireActivity(),
-            permissionsArray,
-            resultCode
-        )
+        requestPermissions(permissionsArray,resultCode)
     }
     /*
      * In all cases, we need to have the location permission.  On Android 10+ (Q) we need to have

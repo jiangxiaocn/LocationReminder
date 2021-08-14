@@ -110,5 +110,27 @@ fun saveRemindersNoLocation() {
     // 6. Make sure the activity is closed.
     activityScenario.close()
 }
+/*    @Test
+    fun saveReminders() {
+
+        // 1. Start RemindersActivity.
+        val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
+        dataBindingIdlingResource.monitorActivity(activityScenario)
+
+        // Add active task
+        onView(withId(R.id.addReminderFAB)).perform(ViewActions.click())
+        onView(withId(R.id.reminderTitle))
+                .perform(ViewActions.typeText("TITLE1"), ViewActions.closeSoftKeyboard())
+        onView(withId(R.id.reminderDescription))
+                .perform(ViewActions.typeText("DESCRIPTION"), closeSoftKeyboard())
+        onView(withId(R.id.selectLocation)).perform(ViewActions.click())
+
+        onView(withText(R.string.err_select_location))
+        .inRoot(withDecorView(not(mActivityRule?.getActivity()?.getWindow()?.getDecorView())))
+        .check(matches(isDisplayed()))
+
+        // 6. Make sure the activity is closed.
+        activityScenario.close()
+    }*/
 
 }
