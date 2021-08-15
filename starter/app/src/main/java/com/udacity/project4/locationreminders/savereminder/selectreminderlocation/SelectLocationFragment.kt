@@ -48,6 +48,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private val TAG = SelectLocationFragment::class.java.simpleName
     private lateinit var pointOfInterest: PointOfInterest
     private lateinit var randomPosition : LatLng
+    private var isPOI: Boolean = false
 
 
     override fun onCreateView(
@@ -86,7 +87,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         val zoomLevel = 18f
         map.uiSettings.isZoomControlsEnabled = true
 
-        map.addMarker(MarkerOptions().position(homeLatLng).title("Marker in Sweden"))
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng,zoomLevel))
         setMapLongClick(map)
         setLocationClick(map)
@@ -99,25 +99,24 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         //         send back the selected location details to the view model
         //         and navigate back to the previous fragment to save the reminder and add the geofence
         binding.saveButton.setOnClickListener {
-            if (this::pointOfInterest.isInitialized) {
+            if (isPOI&&this::pointOfInterest.isInitialized){
                 _viewModel.latitude.value = pointOfInterest.latLng.latitude
                 _viewModel.longitude.value = pointOfInterest.latLng.longitude
                 _viewModel.reminderSelectedLocationStr.value = pointOfInterest.name
                 _viewModel.selectedPOI.value = pointOfInterest
                 view!!.findNavController().navigate(SelectLocationFragmentDirections.actionSelectLocationFragmentToSaveReminderFragment())
-            } else {
-                if (this::randomPosition.isInitialized) {
-                    _viewModel.latitude.value = randomPosition.latitude
-                    _viewModel.longitude.value = randomPosition.longitude
-                    _viewModel.reminderSelectedLocationStr.value = getString(R.string.dropped_pin)
-                    view!!.findNavController().navigate(SelectLocationFragmentDirections.actionSelectLocationFragmentToSaveReminderFragment())
-                } else {
-                    Toast.makeText(context, "Please select a location", Toast.LENGTH_LONG).show()
-                }
+            }else if (isPOI==false && this::randomPosition.isInitialized){
+                _viewModel.latitude.value = randomPosition.latitude
+                _viewModel.longitude.value = randomPosition.longitude
+                _viewModel.reminderSelectedLocationStr.value = getString(R.string.dropped_pin)
+                view!!.findNavController().navigate(SelectLocationFragmentDirections.actionSelectLocationFragmentToSaveReminderFragment())
+            }
+
+            if (!this::pointOfInterest.isInitialized && !this::randomPosition.isInitialized) {
+                Toast.makeText(context, "Please select a location", Toast.LENGTH_LONG).show()
             }
         }
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.map_options, menu)
@@ -158,7 +157,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
             )
             randomPosition=latLng
+            isPoi(false)
         }
+
     }
 
     private fun setLocationClick(map:GoogleMap){
@@ -178,7 +179,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                             .fillColor(Color.argb(64,0,0,255)).strokeWidth(4F)
 
             )
+            isPoi(true)
         }
+
     }
     private fun setMapStyle(map: GoogleMap) {
         try {
@@ -238,6 +241,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             }
         }
     }
-
+    private fun isPoi(isPoi:Boolean){
+            isPOI = isPoi
+    }
 
 }

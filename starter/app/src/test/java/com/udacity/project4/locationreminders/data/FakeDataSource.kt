@@ -14,12 +14,12 @@ class FakeDataSource(var ReminderDTOs:MutableList<ReminderDTO>?= mutableListOf()
     }
 
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
-        ReminderDTOs?.let { return Result.Success(ArrayList(it)) }
         if (shouldReturnError) {
             return Result.Error(
-                    Exception("Test exception").toString()
+                    "Reminders not found"
             )
         }
+        ReminderDTOs?.let { return Result.Success(ArrayList(it)) }
         return Result.Error(
                 Exception("Reminders not found").toString())
     }

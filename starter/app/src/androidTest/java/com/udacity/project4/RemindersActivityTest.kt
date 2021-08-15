@@ -8,11 +8,13 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
+import com.google.android.material.internal.ContextUtils.getActivity
 import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.local.LocalDB
@@ -34,6 +36,10 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest
 import org.koin.test.get
+import org.hamcrest.Matchers.`is`
+import org.hamcrest.Matchers.not
+
+import kotlin.concurrent.thread
 
 //END TO END test to black box test the app
 class RemindersActivityTest :
@@ -101,16 +107,13 @@ fun saveRemindersNoLocation() {
     onView(withId(R.id.reminderDescription))
         .perform(ViewActions.typeText("DESCRIPTION"), closeSoftKeyboard())
     onView(withId(R.id.saveReminder)).perform(click())
-            //onView(withText(R.string.err_select_location))
-            //.inRoot(withDecorView(not(mActivityRule?.getActivity()?.getWindow()?.getDecorView())))
-    //.check(matches(isDisplayed()))
     onView(withId(com.google.android.material.R.id.snackbar_text))
             .check(matches(withText(R.string.err_select_location)))
 
     // 6. Make sure the activity is closed.
     activityScenario.close()
 }
-/*    @Test
+    @Test
     fun saveReminders() {
 
         // 1. Start RemindersActivity.
@@ -124,13 +127,14 @@ fun saveRemindersNoLocation() {
         onView(withId(R.id.reminderDescription))
                 .perform(ViewActions.typeText("DESCRIPTION"), closeSoftKeyboard())
         onView(withId(R.id.selectLocation)).perform(ViewActions.click())
-
-        onView(withText(R.string.err_select_location))
-        .inRoot(withDecorView(not(mActivityRule?.getActivity()?.getWindow()?.getDecorView())))
-        .check(matches(isDisplayed()))
+        onView(withId(R.id.map)).perform(ViewActions.click())
+        onView(withId(R.id.save_button)).perform(ViewActions.click())
+        onView(withId(R.id.saveReminder)).perform(click())
+        onView(withText(R.string.geofences_added)).inRoot(withDecorView(not(mActivityRule?.getActivity()?.getWindow()?.getDecorView()))).check(matches(isDisplayed()))
+        // onView(withText(R.string.geofences_added)).inRoot(ToastMatcher()).check(matches(isDisplayed()))
 
         // 6. Make sure the activity is closed.
         activityScenario.close()
-    }*/
+    }
 
 }
